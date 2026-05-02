@@ -154,12 +154,19 @@ async function predict() {
             "⚠️ Please fill all fields correctly.";
         return;
     }
+let res;
 
-    const res = await fetch("https://smart-health-predictor-19my.onrender.com/predict", {
+try {
+    res = await fetch("https://smart-health-predictor-19my.onrender.com/predict", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify(data)
     });
+} catch (err) {
+    document.getElementById("result").innerText =
+        "❌ Server not responding. Try again.";
+    return;
+}
 
     const result = await res.json();
     const risk = result.health_risk;
