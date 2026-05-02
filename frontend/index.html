@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SmartHealth Predictor</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .card {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(20px);
+            padding: 30px;
+            border-radius: 20px;
+            width: 420px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+            color: white;
+        }
+
+        h1 { text-align: center; }
+
+        h3 {
+            margin-top: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.3);
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin-top: 8px;
+            border-radius: 8px;
+            border: none;
+        }
+
+        button {
+            width: 100%;
+            margin-top: 20px;
+            padding: 12px;
+            border-radius: 10px;
+            border: none;
+            background: linear-gradient(to right, #ff7a18, #ffb347);
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        #result {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 20px;
+        }
+
+        .low { color: #00ff9c; }
+        .medium { color: #ffd700; }
+        .high { color: #ff4d4d; }
+    </style>
+</head>
+
+<body>
+
+<div class="card">
+    <h1>SmartHealth</h1>
+
+    <h3>👤 Personal</h3>
+    <input id="age" type="number" placeholder="Age (years)">
+    <input id="profession" placeholder="Profession (e.g., doctor)">
+
+    <select id="married">
+        <option value="no">Married: No</option>
+        <option value="yes">Married: Yes</option>
+    </select>
+
+    <h3>🏃 Lifestyle</h3>
+
+    <select id="exercise">
+        <option value="low">Exercise: Low</option>
+        <option value="medium">Exercise: Medium</option>
+        <option value="high">Exercise: High</option>
+    </select>
+
+    <input id="sleep" type="number" placeholder="Sleep (hours per day)">
+
+    <select id="sugar_intake">
+        <option value="low">Sugar Intake: Low</option>
+        <option value="medium">Sugar Intake: Medium</option>
+        <option value="high">Sugar Intake: High</option>
+    </select>
+
+    <select id="smoking">
+        <option value="no">Smoking: No</option>
+        <option value="yes">Smoking: Yes</option>
+    </select>
+
+    <select id="alcohol">
+        <option value="no">Alcohol: No</option>
+        <option value="yes">Alcohol: Yes</option>
+    </select>
+
+    <h3>📊 Body</h3>
+
+    <input id="weight" type="number" placeholder="Weight (kg)">
+    <input id="height" type="number" placeholder="Height (cm)">
+    <input id="bmi" type="number" placeholder="BMI (kg/m²)">
+
+    <button onclick="predict()">Predict Health Risk</button>
+
+    <div id="result"></div>
+</div>
+
+<script>
+
+// ✅ 1. Validation function
+function isInvalid(data) {
+    return Object.values(data).some(v =>
+        v === "" || v === null || Number.isNaN(v)
+    );
+}
+
+async function predict() {
+
+    document.getElementById("result").innerText = "⏳ Predicting...";
+
+    // ✅ 2. Auto BMI calculation
+    const bmiValue = weight.value && height.value
+        ? (weight.value / ((height.value/100) ** 2)).toFixed(2)
+        : null;
+
+    const data = {
+        age: parseFloat(age.value),
+        weight: parseFloat(weight.value),
+        height: parseFloat(height.value),
+        exercise: exercise.value,
+        sleep: parseFloat(sleep.value),
+        sugar_intake: sugar_intake.value,
+        smoking: smoking.value,
+        alcohol: alcohol.value,
+        married: married.value,
+        profession: profession.value,
+        bmi: parseFloat(bmiValue)
+    };
+
+    // ✅ 3. Validate input
+    if (isInvalid(data)) {
+        document.getElementById("result").innerText =
+            "⚠️ Please fill all fields correctly.";
+        return;
+    }
+
+    const res = await fetch("http://127.0.0.1:5000/predict", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(data)
+    });
+
+    const result = await res.json();
+    const risk = result.health_risk;
+
+    // ✅ 4. Risk color
+    let cls = "low";
+    if (risk > 60) cls = "high";
+    else if (risk > 30) cls = "medium";
+
+    // ✅ 5. Health message (NEW FEATURE)
+    let message = "";
+    if (risk < 30)
+        message = "✅ Low risk – maintain your lifestyle";
+    else if (risk < 60)
+        message = "⚠️ Moderate risk – consider improving sleep & exercise";
+    else
+        message = "🚨 High risk – reduce smoking/alcohol & improve habits";
+
+    document.getElementById("result").innerHTML =
+        `<span class="${cls}">⚡ Risk Score: ${risk}/100</span><br>${message}`;
+    document.getElementById("result").scrollIntoView({
+    behavior: "smooth"
+});
+}
+
+</script>
+
+</body>
+</html>
