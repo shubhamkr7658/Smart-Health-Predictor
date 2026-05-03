@@ -6,6 +6,59 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
 
     <style>
+        .github-btn {
+    display: inline-block;
+    margin-top: 12px;
+    padding: 12px 22px;
+    font-size: 15px;
+    font-weight: 600;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 10px;
+    background: linear-gradient(270deg, #24292e, #586069, #24292e);
+    background-size: 400% 400%;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    animation: gradientMove 6s ease infinite, floatMove 2s ease-in-out infinite alternate;
+}
+
+/* Moving gradient (premium effect) */
+@keyframes gradientMove {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* Smooth left-right floating (train-like but subtle) */
+@keyframes floatMove {
+    0% { transform: translateX(-6px); }
+    100% { transform: translateX(6px); }
+}
+
+/* Glow effect */
+.github-btn::before {
+    content: "";
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.2), transparent 60%);
+    animation: glowRotate 4s linear infinite;
+}
+
+/* rotating shine */
+@keyframes glowRotate {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Hover effect */
+.github-btn:hover {
+    transform: scale(1.08);
+    box-shadow: 0 0 20px rgba(255,255,255,0.4);
+}
         body {
             font-family: 'Poppins', sans-serif;
             background: linear-gradient(135deg, #667eea, #764ba2);
@@ -69,6 +122,9 @@
 
 <div class="card">
     <h1>SmartHealth</h1>
+    <a href="https://github.com/shubhamkr7658/Smart-Health-Predictor" target="_blank" class="github-btn">
+    <span>⭐ View Project on GitHub</span>
+</a>
 
     <h3>👤 Personal</h3>
     <input id="age" type="number" placeholder="Age (years)">
@@ -154,19 +210,12 @@ async function predict() {
             "⚠️ Please fill all fields correctly.";
         return;
     }
-let res;
 
-try {
-    res = await fetch("https://smart-health-predictor-19my.onrender.com/predict", {
+    const res = await fetch("http://127.0.0.1:5000/predict", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify(data)
     });
-} catch (err) {
-    document.getElementById("result").innerText =
-        "❌ Server not responding. Try again.";
-    return;
-}
 
     const result = await res.json();
     const risk = result.health_risk;
