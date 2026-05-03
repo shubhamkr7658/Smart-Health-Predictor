@@ -6,59 +6,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
 
     <style>
-        .github-btn {
-    display: inline-block;
-    margin-top: 12px;
-    padding: 12px 22px;
-    font-size: 15px;
-    font-weight: 600;
-    color: #fff;
-    text-decoration: none;
-    border-radius: 10px;
-    background: linear-gradient(270deg, #24292e, #586069, #24292e);
-    background-size: 400% 400%;
-    position: relative;
-    overflow: hidden;
-    transition: all 0.3s ease;
-    animation: gradientMove 6s ease infinite, floatMove 2s ease-in-out infinite alternate;
-}
-
-/* Moving gradient (premium effect) */
-@keyframes gradientMove {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
-}
-
-/* Smooth left-right floating (train-like but subtle) */
-@keyframes floatMove {
-    0% { transform: translateX(-6px); }
-    100% { transform: translateX(6px); }
-}
-
-/* Glow effect */
-.github-btn::before {
-    content: "";
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: radial-gradient(circle, rgba(255,255,255,0.2), transparent 60%);
-    animation: glowRotate 4s linear infinite;
-}
-
-/* rotating shine */
-@keyframes glowRotate {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
-/* Hover effect */
-.github-btn:hover {
-    transform: scale(1.08);
-    box-shadow: 0 0 20px rgba(255,255,255,0.4);
-}
         body {
             font-family: 'Poppins', sans-serif;
             background: linear-gradient(135deg, #667eea, #764ba2);
@@ -115,6 +62,23 @@
         .low { color: #00ff9c; }
         .medium { color: #ffd700; }
         .high { color: #ff4d4d; }
+
+        .github-btn {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 10px 20px;
+            border-radius: 10px;
+            background: linear-gradient(270deg, #24292e, #586069, #24292e);
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            animation: move 3s infinite alternate;
+        }
+
+        @keyframes move {
+            0% { transform: translateX(-5px); }
+            100% { transform: translateX(5px); }
+        }
     </style>
 </head>
 
@@ -122,9 +86,10 @@
 
 <div class="card">
     <h1>SmartHealth</h1>
+
     <a href="https://github.com/shubhamkr7658/Smart-Health-Predictor" target="_blank" class="github-btn">
-    <span>⭐ View Project on GitHub</span>
-</a>
+        ⭐ View Source Code (GitHub)
+    </a>
 
     <h3>👤 Personal</h3>
     <input id="age" type="number" placeholder="Age (years)">
@@ -143,7 +108,7 @@
         <option value="high">Exercise: High</option>
     </select>
 
-    <input id="sleep" type="number" placeholder="Sleep (hours per day)">
+    <input id="sleep" type="number" placeholder="Sleep (hours/day)">
 
     <select id="sugar_intake">
         <option value="low">Sugar Intake: Low</option>
@@ -165,7 +130,6 @@
 
     <input id="weight" type="number" placeholder="Weight (kg)">
     <input id="height" type="number" placeholder="Height (cm)">
-    <input id="bmi" type="number" placeholder="BMI (kg/m²)">
 
     <button onclick="predict()">Predict Health Risk</button>
 
@@ -174,7 +138,6 @@
 
 <script>
 
-// ✅ 1. Validation function
 function isInvalid(data) {
     return Object.values(data).some(v =>
         v === "" || v === null || Number.isNaN(v)
@@ -183,9 +146,11 @@ function isInvalid(data) {
 
 async function predict() {
 
+    const btn = document.querySelector("button");
+    btn.disabled = true;
+
     document.getElementById("result").innerText = "⏳ Predicting...";
 
-    // ✅ 2. Auto BMI calculation
     const bmiValue = weight.value && height.value
         ? (weight.value / ((height.value/100) ** 2)).toFixed(2)
         : null;
@@ -204,41 +169,48 @@ async function predict() {
         bmi: parseFloat(bmiValue)
     };
 
-    // ✅ 3. Validate input
     if (isInvalid(data)) {
         document.getElementById("result").innerText =
             "⚠️ Please fill all fields correctly.";
+        btn.disabled = false;
         return;
     }
 
-    const res = await fetch("https://smart-health-predictor-19my.onrender.com/predict", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify(data)
-    });
+    try {
+        const res = await fetch("https://smart-health-predictor-19my.onrender.com/predict", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify(data)
+        });
 
-    const result = await res.json();
-    const risk = result.health_risk;
+        const result = await res.json();
+        const risk = result.risk;   // ✅ FIXED
 
-    // ✅ 4. Risk color
-    let cls = "low";
-    if (risk > 60) cls = "high";
-    else if (risk > 30) cls = "medium";
+        let cls = "low";
+        if (risk > 60) cls = "high";
+        else if (risk > 30) cls = "medium";
 
-    // ✅ 5. Health message (NEW FEATURE)
-    let message = "";
-    if (risk < 30)
-        message = "✅ Low risk – maintain your lifestyle";
-    else if (risk < 60)
-        message = "⚠️ Moderate risk – consider improving sleep & exercise";
-    else
-        message = "🚨 High risk – reduce smoking/alcohol & improve habits";
+        let message = "";
+        if (risk < 30)
+            message = "✅ Low risk – maintain your lifestyle";
+        else if (risk < 60)
+            message = "⚠️ Moderate risk – improve habits";
+        else
+            message = "🚨 High risk – lifestyle changes needed";
 
-    document.getElementById("result").innerHTML =
-        `<span class="${cls}">⚡ Risk Score: ${risk}/100</span><br>${message}`;
-    document.getElementById("result").scrollIntoView({
-    behavior: "smooth"
-});
+        document.getElementById("result").innerHTML =
+            `<span class="${cls}">⚡ Risk Score: ${risk}/100</span><br>${message}`;
+
+        document.getElementById("result").scrollIntoView({
+            behavior: "smooth"
+        });
+
+    } catch (err) {
+        document.getElementById("result").innerText =
+            "❌ Error connecting to server";
+    }
+
+    btn.disabled = false;
 }
 
 </script>
