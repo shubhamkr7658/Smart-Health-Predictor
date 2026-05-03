@@ -174,16 +174,24 @@ const data = {
         btn.disabled = false;
         return;
     }
+try {
+    const res = await fetch("https://smart-health-predictor-l9my.onrender.com/predict", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+    });
 
-    try {
-        const res = await fetch("https://smart-health-predictor-l9my.onrender.com/predict", {
-            method: "POST",
-            headers: {"Content-Type": "application/json"},
-            body: JSON.stringify(data)
-        });
+    const result = await res.json();
 
-        const result = await res.json();
-        const risk = result.risk;   // ✅ FIXED
+    const risk = result.risk;
+
+    document.getElementById("result").innerText =
+        "⚡ Risk Score: " + risk + "/100";
+
+} catch (err) {
+    document.getElementById("result").innerText =
+        "❌ Server error";
+}
 
         let cls = "low";
         if (risk > 60) cls = "high";
