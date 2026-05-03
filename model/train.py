@@ -164,12 +164,3 @@ joblib.dump(best_model, model_path)
 print("✅ Model saved successfully!")
 
 # ======================================================
-# 11. VISUALIZATION
-# ======================================================
-plt.figure(figsize=(4,6))
-plt.bar(["Health Risk"], [prediction])
-plt.ylim(0,100)
-plt.ylabel("Risk (0-100)")
-plt.title("Predicted Health Risk Score")
-plt.grid(axis="y", linestyle="--", alpha=0.3)
-plt.show()
