@@ -151,24 +151,23 @@ async function predict() {
 
     document.getElementById("result").innerText = "⏳ Predicting...";
 
-    const bmiValue = weight.value && height.value
-        ? (weight.value / ((height.value/100) ** 2)).toFixed(2)
-        : null;
+const bmiValue = weight.value && height.value
+    ? (weight.value / ((height.value / 100) ** 2)).toFixed(2)
+    : null;
 
-    const data = {
-        age: parseFloat(age.value),
-        weight: parseFloat(weight.value),
-        height: parseFloat(height.value),
-        exercise: exercise.value,
-        sleep: parseFloat(sleep.value),
-        sugar_intake: sugar_intake.value,
-        smoking: smoking.value,
-        alcohol: alcohol.value,
-        married: married.value,
-        profession: profession.value,
-        bmi: parseFloat(bmiValue)
-    };
-
+const data = {
+    age: parseFloat(age.value),
+    weight: parseFloat(weight.value),
+    height: parseFloat(height.value),
+    exercise: exercise.value,
+    sleep: parseFloat(sleep.value),
+    sugar_intake: sugar.value,
+    smoking: smoking.value,
+    alcohol: alcohol.value,
+    married: married.value,
+    profession: profession.value,
+    bmi: parseFloat(bmiValue)
+};
     if (isInvalid(data)) {
         document.getElementById("result").innerText =
             "⚠️ Please fill all fields correctly.";
