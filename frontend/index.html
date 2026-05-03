@@ -151,47 +151,40 @@ async function predict() {
 
     document.getElementById("result").innerText = "⏳ Predicting...";
 
-const bmiValue = weight.value && height.value
-    ? (weight.value / ((height.value / 100) ** 2)).toFixed(2)
-    : null;
+    const bmiValue = weight.value && height.value
+        ? (weight.value / ((height.value / 100) ** 2)).toFixed(2)
+        : null;
 
-const data = {
-    age: parseFloat(age.value),
-    weight: parseFloat(weight.value),
-    height: parseFloat(height.value),
-    exercise: exercise.value,
-    sleep: parseFloat(sleep.value),
-    sugar_intake: sugar.value,
-    smoking: smoking.value,
-    alcohol: alcohol.value,
-    married: married.value,
-    profession: profession.value,
-    bmi: parseFloat(bmiValue)
-};
+    const data = {
+        age: parseFloat(age.value),
+        weight: parseFloat(weight.value),
+        height: parseFloat(height.value),
+        exercise: exercise.value,
+        sleep: parseFloat(sleep.value),
+        sugar_intake: sugar_intake.value,
+        smoking: smoking.value,
+        alcohol: alcohol.value,
+        married: married.value,
+        profession: profession.value,
+        bmi: parseFloat(bmiValue)
+    };
+
     if (isInvalid(data)) {
         document.getElementById("result").innerText =
             "⚠️ Please fill all fields correctly.";
         btn.disabled = false;
         return;
     }
-try {
-    const res = await fetch("https://smart-health-predictor-l9my.onrender.com/predict", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data)
-    });
 
-    const result = await res.json();
+    try {
+        const res = await fetch("http://127.0.0.1:5000/predict", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data)
+        });
 
-    const risk = result.risk;
-
-    document.getElementById("result").innerText =
-        "⚡ Risk Score: " + risk + "/100";
-
-} catch (err) {
-    document.getElementById("result").innerText =
-        "❌ Server error";
-}
+        const result = await res.json();
+        const risk = result.risk;
 
         let cls = "low";
         if (risk > 60) cls = "high";
@@ -208,13 +201,10 @@ try {
         document.getElementById("result").innerHTML =
             `<span class="${cls}">⚡ Risk Score: ${risk}/100</span><br>${message}`;
 
-        document.getElementById("result").scrollIntoView({
-            behavior: "smooth"
-        });
-
     } catch (err) {
         document.getElementById("result").innerText =
             "❌ Error connecting to server";
+        console.error(err);
     }
 
     btn.disabled = false;
