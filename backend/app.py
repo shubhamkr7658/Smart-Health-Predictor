@@ -21,9 +21,9 @@ def predict():
     prediction = model.predict(df)[0]
     prediction = max(0, min(100, prediction))
 
-    return jsonify({
-        "health_risk": round(prediction, 2)
-    })
+return jsonify({
+    "risk": round(prediction, 2)
+})
 
 if __name__ == "__main__":
     app.run(debug=True)
